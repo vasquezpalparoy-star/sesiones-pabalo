@@ -16,6 +16,38 @@ async function generate(e){e.preventDefault();if(!db||!session)return message('I
 
 function readable(value){if(Array.isArray(value))return value.map(readable).join('\n');if(value&&typeof value==='object')return Object.entries(value).map(([k,v])=>k+': '+readable(v)).join('\n');return String(value??'')}
 function td(value){return '<td contenteditable="true">'+h(readable(value)).replace(/\n/g,'<br>')+'</td>'}
+
+function worksheetPrompt(){
+ const choice=document.querySelector('#gemini-image-kind')?.value||'ficha';
+ const what=choice==='lamina'?'una lámina ilustrada educativa':choice==='mixta'?'una ficha con ilustraciones y ejercicios':'una ficha de trabajo ilustrada';
+ return 'Crea una SOLA IMAGEN de '+what+', lista para imprimir en hoja A4 vertical. En español, estilo pedagógico claro, letra Arial o similar 12 puntos, títulos en negrita, cuadros con bordes azules y encabezados azul claro. Nivel: '+(current.nivel||'Primaria')+'. Grado: '+(current.grado||'4.º')+'. Área: '+(current.area||'')+'. Tema: '+(current.tema||'')+'. Título: '+(result?.titulo||current.tema||'Ficha de trabajo')+'. Incluye instrucciones claras, 5 o 6 actividades relacionadas con el tema, dibujos de apoyo y espacios amplios para responder. No inventes nombres ni datos personales. Prioriza legibilidad y buena distribución, no pongas marcas de agua. Devuelve la ficha como una imagen completa, sin explicación adicional.';
+}
+function geminiWorksheetPanel(){
+ if(current.modo_imagenes!=='con')return '';
+ return '<section class="gemini-image-panel"><h3>FICHA ILUSTRADA CON GEMINI</h3><p>Genera el texto de instrucciones para Gemini. Después descarga la imagen de Gemini y súbela aquí para incluirla en el PDF y Word.</p><label>Tipo de ficha<select id="gemini-image-kind"><option value="ficha">Ficha ilustrada de trabajo</option><option value="lamina">Lámina visual educativa</option><option value="mixta">Ficha con imágenes y ejercicios</option></select></label><label>Prompt automático<textarea id="gemini-image-prompt" rows="8"></textarea></label><div class="gemini-image-buttons"><button type="button" id="gemini-copy-prompt">Copiar prompt</button><button type="button" id="gemini-open">Copiar y abrir Gemini ↗</button></div><p>En Gemini pega el texto con Ctrl + V. Descarga la imagen resultante y selecciónala abajo.</p><label>Subir ficha generada (PNG, JPG o WebP)<input type="file" id="gemini-image-upload" accept="image/png,image/jpeg,image/webp"/></label><div class="gemini-image-info"></div><div class="gemini-image-holder"></div></section>';
+}
+function wireGeminiWorksheet(){
+ const panel=document.querySelector('.gemini-image-panel');if(!panel)return;
+ const field=panel.querySelector('#gemini-image-prompt');
+ field.value=worksheetPrompt();
+ panel.querySelector('#gemini-image-kind').onchange=()=>{field.value=worksheetPrompt()};
+ const copy=async()=>{await navigator.clipboard.writeText(field.value);message('Prompt copiado. Pégalo en Gemini para generar la imagen.','ok')};
+ panel.querySelector('#gemini-copy-prompt').onclick=()=>copy().catch(()=>message('Selecciona el texto y cópialo manualmente.','error'));
+ panel.querySelector('#gemini-open').onclick=()=>{
+  const win=window.open('https://gemini.google.com/app','_blank','noopener,noreferrer');
+  copy().catch(()=>message('Gemini abierto. Selecciona y copia el prompt manualmente.','info'));
+  if(!win)message('El navegador bloqueó la pestaña: permite las ventanas emergentes para Gemini.','error');
+ };
+ panel.querySelector('#gemini-image-upload').onchange=e=>{
+  const file=e.target.files?.[0],info=panel.querySelector('.gemini-image-info'),holder=panel.querySelector('.gemini-image-holder');
+  holder.replaceChildren();if(!file)return;
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>8*1024*1024){info.textContent='Selecciona un PNG, JPG o WebP de máximo 8 MB.';return}
+  const reader=new FileReader();
+  reader.onload=()=>{const image=new Image();image.alt='Ficha creada en Gemini';image.onload=()=>info.textContent='Ficha añadida. Aparecerá en el PDF y se intentará incluir en Word.';image.src=reader.result;holder.replaceChildren(image)};
+  reader.readAsDataURL(file);
+ };
+}
+
 function imageZones(){
  const use=current.modo_imagenes==='con';if(!use)return '';
  const slots=[['inicio','INICIO · imagen motivadora','Ilustración educativa de '+current.tema+' para motivar estudiantes de '+current.grado+' de '+current.nivel],['desarrollo','DESARROLLO · material visual','Pasos o ejemplo visual de '+current.tema+' para '+current.area],['ficha','FICHA DE TRABAJO · imagen de apoyo','Dibujo o lámina didáctica de '+current.tema+' para ejercicios de '+current.grado]];
@@ -66,7 +98,7 @@ function renderResult(){
  '<table><thead><tr><th>Criterio observable</th><th>Sí</th><th>En proceso</th><th>No</th></tr></thead><tbody>'+
  criteria.map(q=>'<tr><td contenteditable="true">'+h(readable(q))+'</td><td>☐</td><td>☐</td><td>☐</td></tr>').join('')+'</tbody></table>'+
  '<p class="source">Formato inspirado en el documento de referencia proporcionado por el usuario. Revisar competencias y actividades antes de aplicar.</p>';
- p.insertAdjacentHTML('beforeend',imageZones());wireImages();document.querySelector('#word').disabled=false;document.querySelector('#pdf').disabled=false;document.querySelector('#print').disabled=false;
+ p.insertAdjacentHTML('beforeend',imageZones()+geminiWorksheetPanel());wireImages();wireGeminiWorksheet();document.querySelector('#word').disabled=false;document.querySelector('#pdf').disabled=false;document.querySelector('#print').disabled=false;
 }
 async function exportPdf(){
  const btn=document.querySelector('#pdf'),source=document.querySelector('#preview');if(!source||!result)return;
@@ -167,6 +199,17 @@ async function exportWord(){
     children.push(new Paragraph({children:[new ImageRun({data:bytes,type,transformation:{width:Math.max(1,Math.round(img.naturalWidth*k)),height:Math.max(1,Math.round(img.naturalHeight*k))}})]}));
    }catch(error){console.warn('Imagen omitida en Word por restricciones del servidor:',error);children.push(para('Imagen de referencia: '+img.src))}
   }
+ }
+
+ const generatedImage=document.querySelector('.gemini-image-holder img');
+ if(generatedImage?.src?.startsWith('data:image/')){
+  try{
+   const {ImageRun}=await import('docx');const res=await fetch(generatedImage.src),data=new Uint8Array(await res.arrayBuffer());
+   const kind=generatedImage.src.startsWith('data:image/png')?'png':generatedImage.src.startsWith('data:image/jpeg')?'jpg':'';
+   if(kind){const w=generatedImage.naturalWidth,h=generatedImage.naturalHeight,k=Math.min(485/w,700/h,1);
+    children.push(new Paragraph({children:[new PageBreak()]}),heading('ANEXO 3. FICHA ILUSTRADA'),new Paragraph({children:[new ImageRun({data,type:kind,transformation:{width:Math.round(w*k),height:Math.round(h*k)}})]}));
+   }
+  }catch(err){console.warn('No fue posible añadir la imagen al Word:',err)}
  }
  const doc=new Document({sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,right:850,bottom:850,left:850}}},children}]});
  const blob=await Packer.toBlob(doc),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesion-grafiplot-en-cuadros.docx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
