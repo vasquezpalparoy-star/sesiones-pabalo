@@ -28,3 +28,18 @@
 .pdf-paper .page-break{height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;break-before:page;page-break-before:always}
 .pdf-paper h2,.pdf-paper h3{break-after:avoid;page-break-after:avoid}
 .pdf-paper .lines{color:#666}
+
+/* Imágenes opcionales en sesión, lámina y ficha */
+.image-panel{margin:24px 0;break-before:page;page-break-before:always}
+.image-slot{border:2px dashed #2d78bc;background:#f3f9ff;border-radius:9px;margin:16px 0;padding:15px;break-inside:avoid}
+.image-slot strong{color:#164f84}.image-slot p{font-size:12px;margin:7px 0}
+.image-slot label{margin:9px 0 4px}.image-slot input{font-size:12px}
+.image-search{font-size:13px;color:#145fa1;display:inline-block;margin:4px 0}
+.image-holder img{display:block;max-width:100%;max-height:470px;object-fit:contain;margin:10px auto;border:1px solid #d7e6f5}
+.image-message{font-size:12px;color:#7b5421}
+.pdf-paper .image-slot,.pdf-paper .image-panel{background:#fff;border:0;padding:0}
+.pdf-paper .image-slot:not(:has(img)){display:none}
+.pdf-paper .image-slot:has(img){border:1px solid #2d78bc;padding:8px}
+.pdf-paper .image-slot .image-search,.pdf-paper .image-slot label,.pdf-paper .image-slot .image-message,.pdf-paper .image-panel>p{display:none}
+.pdf-paper .image-panel:not(:has(img)){display:none}
+@media print{.image-slot:not(:has(img)),.image-search,.image-slot label,.image-message,.image-panel>p{display:none!important}.image-panel:not(:has(img)){display:none!important}.image-slot:has(img){border:1px solid #2d78bc;background:#fff;padding:8px}.image-panel{break-before:page}.image-slot img{max-height:160mm}}
