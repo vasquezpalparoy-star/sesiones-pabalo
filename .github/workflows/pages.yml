@@ -25,6 +25,8 @@ jobs:
       - run: npm run build
         env:
           GITHUB_PAGES: 'true'
+          VITE_SUPABASE_URL: https://intsmwiivbdaversvlky.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_rAR4xuqnyM8w3zXy3Z1qdQ_-SBglNl-
       - uses: actions/configure-pages@v5
         with:
           enablement: true
