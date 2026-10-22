@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import './style.css';
+import html2pdf from 'html2pdf.js';
 const url=import.meta.env.VITE_SUPABASE_URL, pub=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const db=(url&&pub&&!pub.startsWith('REEMPLAZAR'))?createClient(url,pub):null;
 const app=document.querySelector('#app');
@@ -73,7 +74,7 @@ async function exportPdf(){
  message('Preparando páginas A4 en PDF. Conservando los cuadros y las fichas…');
  let staging;
  try{
-  const pkg=await import('html2pdf.js');const html2pdf=pkg.default||pkg;
+  // Biblioteca empaquetada junto a la aplicación: evita fallos al cargar chunks antiguos.
   staging=document.createElement('div');staging.className='pdf-staging';
   const clone=source.cloneNode(true);clone.classList.add('pdf-paper');
   clone.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
