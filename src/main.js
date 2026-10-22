@@ -36,6 +36,7 @@ async function leerPdfModelo(event){
  label.textContent='Leyendo estructura del PDF de referencia…';
  try{
   const pdfjs=await import('pdfjs-dist');
+  pdfjs.GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/build/pdf.worker.min.mjs',import.meta.url).toString();
   const data=new Uint8Array(await file.arrayBuffer());
   const documentPdf=await pdfjs.getDocument({data,disableFontFace:true,useSystemFonts:true}).promise;
   const parts=[];
