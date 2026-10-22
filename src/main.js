@@ -51,18 +51,69 @@ function renderResult(){
 }
 async function exportWord(){
  if(!result)return;
- const {Table,TableRow,TableCell,WidthType,AlignmentType}=await import('docx');
- const grab=(selector)=>document.querySelector(selector)?.innerText||'';
- const para=(x)=>new Paragraph({text:String(x||''),spacing:{after:110}});
- const heading=(x)=>new Paragraph({text:x,heading:HeadingLevel.HEADING_2,spacing:{before:180,after:110}});
- const table=(rows,widths)=>new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:rows.map(row=>new TableRow({children:row.map(value=>new TableCell({children:[para(value)]}))}))});
+ const {Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,ShadingType,PageBreak}=await import('docx');
+ const grab=(selector)=>document.querySelector(selector)?.innerText?.trim()||'';
+ const str=(v)=>readable(v).trim();
+ const para=(x,bold=false)=>new Paragraph({children:[new TextRun({text:String(x??''),bold,size:19,font:'Arial'})],spacing:{after:90,line:260}});
+ const heading=(x)=>new Paragraph({children:[new TextRun({text:x,bold:true,size:22,font:'Arial'})],spacing:{before:210,after:105}});
+ const black={style:BorderStyle.SINGLE,size:6,color:'222222'};
+ const borders={top:black,bottom:black,left:black,right:black,insideHorizontal:black,insideVertical:black};
+ const table=(rows,weights=null,firstHeader=true)=>{
+  const cols=Math.max(...rows.map(r=>r.length));
+  const widths=(weights&&weights.length===cols?weights:Array(cols).fill(1/cols)).map(v=>Math.round(v*100));
+  return new Table({
+   width:{size:100,type:WidthType.PERCENTAGE},
+   borders,
+   layout:'fixed',
+   rows:rows.map((values,i)=>new TableRow({tableHeader:firstHeader&&i===0,cantSplit:true,children:Array.from({length:cols},(_,j)=>new TableCell({
+    width:{size:widths[j],type:WidthType.PERCENTAGE},
+    borders,
+    margins:{top:85,bottom:85,left:90,right:90},
+    shading:firstHeader&&i===0?{type:ShadingType.CLEAR,fill:'E8ECEF'}:undefined,
+    children:[para(str(values[j]??''),firstHeader&&i===0)]
+   }))}))
+  });
+ };
+ const getEditable=(value,selector)=>grab(selector)||str(value);
  const data=[['UGEL',current.ugel],['I.E.',current.institucion],['Director(a)',current.director],['Nivel',current.nivel],['Área',current.area],['Grado y sección',[current.grado,current.seccion].filter(Boolean).join(' ')],['Docente',current.docente],['Practicante',current.practicante],['Fecha',current.fecha],['Duración',current.duracion_minutos+' minutos']].filter(x=>x[1]);
- const cells=[['Competencia','Capacidad','Desempeño precisado','Criterios de evaluación','Evidencias'],[result.competencia_sugerida,result.capacidad,result.desempeno,result.criterios_evaluacion,result.evidencia].map(readable)];
  const minutes=Number(current.duracion_minutos)||90,ini=Math.round(minutes*20/135),cie=Math.round(minutes*15/135);
- const children=[new Paragraph({text:'SESIÓN DE APRENDIZAJE N.° '+(current.numero_sesion||'01'),heading:HeadingLevel.HEADING_1,alignment:AlignmentType.CENTER}),para(grab('[data-field="titulo"]')),table(data),heading('PROPÓSITOS DE APRENDIZAJE'),para(grab('[data-field="proposito"]')),table(cells),table([['Competencia transversal','Desempeño'],[readable(result.competencia_transversal),readable(result.desempeno_transversal)]]),table([['Enfoque transversal','Valores','Actitudes demostrables'],[readable(result.enfoque_transversal),readable(result.valores),readable(result.actitudes_demostrables)]]),heading('I. RECURSOS QUE UTILIZAR'),table([['¿Qué necesitamos hacer antes de la sesión?','¿Qué recursos o materiales se utilizarán?'],[readable(result.preparacion_previa||'Seleccionar y preparar el ambiente de aprendizaje.'),readable(result.materiales)]]),heading('II. MOMENTOS PEDAGÓGICOS'),table([['Momentos pedagógicos','Procesos pedagógicos','Tiempo'],['INICIO',readable(result.inicio),ini+' min'],['DESARROLLO',readable(result.desarrollo),(minutes-ini-cie)+' min'],['CIERRE',readable(result.cierre),cie+' min']]),table([['Trabajo de extensión',readable(result.trabajo_extension||'Practicar lo aprendido.')],['Instrumento de evaluación',readable(result.instrumento_evaluacion||'Lista de cotejo')]]),para('___________________                  ___________________'),para('DOCENTE DE ÁREA                              DIRECTOR(A)'),para('___________________   PRACTICANTE'),heading('ANEXO 1. FICHA DE TRABAJO'),para(readable(result.ficha_trabajo?.titulo)),para('Estudiante: __________________________'),para(grab('[data-field="indicaciones"]'))];
- document.querySelectorAll('#preguntas .question span').forEach((el,i)=>{children.push(para((i+1)+'. '+el.innerText),para('_____________________________________________________'))});
- children.push(heading('ANEXO 2. FICHA DE OBSERVACIÓN / LISTA DE COTEJO'),table([['Criterio observable','Sí','En proceso','No'],...(Array.isArray(result.ficha_observacion)?result.ficha_observacion:[]).map(x=>[readable(x),'☐','☐','☐'])]));
+ const editRow=(selector,values)=>Array.from(document.querySelectorAll(selector)).map((el,i)=>el.innerText?.trim()||str(values[i]));
+ const curricularFallback=[result.competencia_sugerida,result.capacidad,result.desempeno,result.criterios_evaluacion,result.evidencia];
+ const curricular=editRow('.curricular:first-of-type tbody td',curricularFallback);
+ const bodyMoments=Array.from(document.querySelectorAll('.moments tbody tr')).map((tr,i)=>{
+  const cells=tr.querySelectorAll('th,td');return [cells[0]?.innerText?.trim()||['INICIO','DESARROLLO','CIERRE'][i],cells[1]?.innerText?.trim()||str([result.inicio,result.desarrollo,result.cierre][i]),cells[2]?.innerText?.trim()||[ini,minutes-ini-cie,cie][i]+' min'];
+ });
+ const children=[
+  new Paragraph({children:[new TextRun({text:'SESIÓN DE APRENDIZAJE N.° '+(current.numero_sesion||'01'),bold:true,size:27,font:'Arial'})],alignment:AlignmentType.CENTER,spacing:{after:130}}),
+  new Paragraph({children:[new TextRun({text:getEditable(result.titulo,'[data-field="titulo"]'),bold:true,size:24,font:'Arial'})],alignment:AlignmentType.CENTER,spacing:{after:200}}),
+  table(data,[.27,.73],false),
+  heading('PROPÓSITOS DE APRENDIZAJE'),
+  para(getEditable(result.proposito,'[data-field="proposito"]')),
+  table([['Competencia','Capacidad','Desempeño precisado','Criterios de evaluación','Evidencias'],curricular.length===5?curricular:curricularFallback],[.19,.18,.24,.22,.17]),
+  heading('COMPETENCIAS TRANSVERSALES'),
+  table([['Competencia transversal','Desempeño'],[result.competencia_transversal,result.desempeno_transversal]],[.38,.62]),
+  heading('ENFOQUE TRANSVERSAL'),
+  table([['Enfoque transversal','Valores','Actitudes demostrables'],[result.enfoque_transversal,result.valores,result.actitudes_demostrables]],[.33,.22,.45]),
+  heading('I. RECURSOS QUE UTILIZAR'),
+  table([['¿Qué necesitamos hacer antes de la sesión?','¿Qué recursos o materiales se utilizarán?'],[result.preparacion_previa||'Seleccionar y preparar el ambiente de aprendizaje.',result.materiales]],[.5,.5]),
+  heading('II. MOMENTOS PEDAGÓGICOS'),
+  table([['Momentos pedagógicos','Procesos pedagógicos y actividades','Tiempo'],...bodyMoments],[.23,.65,.12]),
+  heading('EXTENSIÓN Y EVALUACIÓN'),
+  table([['Trabajo de extensión',result.trabajo_extension||'Practicar lo aprendido.'],['Instrumento de evaluación',result.instrumento_evaluacion||'Lista de cotejo']],[.32,.68],false),
+  para(' '),para('______________________           ______________________           ______________________'),
+  para('DOCENTE DE ÁREA                          DIRECTOR(A)                           PRACTICANTE'),
+  new Paragraph({children:[new PageBreak()]}),
+  heading('ANEXO 1. FICHA DE TRABAJO'),
+  para(result.ficha_trabajo?.titulo||current.tema),
+  para('Estudiante: ___________________________________   Grado y sección: __________'),
+  para(getEditable(result.ficha_trabajo?.indicaciones,'[data-field="indicaciones"]'))
+ ];
+ document.querySelectorAll('#preguntas .question span').forEach((el,i)=>{children.push(para((i+1)+'. '+el.innerText),para('________________________________________________________________________'))});
+ children.push(new Paragraph({children:[new PageBreak()]}),heading('ANEXO 2. FICHA DE OBSERVACIÓN / LISTA DE COTEJO'),para('Estudiante: ___________________________________   Fecha: ______________'));
+ const criteria=Array.from(document.querySelectorAll('#preview table:last-of-type tbody tr td:first-child')).map(el=>el.innerText.trim());
+ const obs=criteria.length?criteria:(Array.isArray(result.ficha_observacion)?result.ficha_observacion.map(str):[]);
+ children.push(table([['Criterio observable','Sí','En proceso','No'],...obs.map(x=>[x,'☐','☐','☐'])],[.67,.11,.11,.11]));
  const doc=new Document({sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,right:850,bottom:850,left:850}}},children}]});
- const blob=await Packer.toBlob(doc),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesion-grafiplot.docx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+ const blob=await Packer.toBlob(doc),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesion-grafiplot-en-cuadros.docx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
 }
 if(db){db.auth.getSession().then(({data,error})=>{if(error)console.warn('Supabase Auth:',error.message);session=data?.session||null;if(session)editor();else login()}).catch(err=>{console.error(err);login()})}else login();
