@@ -4,3 +4,16 @@
 
 /* Documento escolar A4 y datos institucionales */
 .additional{margin:15px 0;padding:12px;border:1px solid #d8e6e9;border-radius:12px}.additional summary{cursor:pointer;font-weight:700;color:#14665d;margin-bottom:9px}.additional textarea{display:block;box-sizing:border-box;width:100%;padding:10px;border:1px solid #cbd9df;border-radius:9px;margin-top:8px;font:inherit}.document-heading{text-align:center;font-size:12px;font-weight:800;letter-spacing:.08em;color:#1b4547;border-bottom:2px solid #1b4547;padding-bottom:10px}.meta-table{font-size:12px;margin:15px 0}.meta-table th{background:#eff5f5;text-align:left;width:33%}.paper .print-section h3{background:#f1f6f6;padding:8px 10px;border-left:4px solid #197b73;font-size:15px}.paper h2{font-size:19px}.paper .question{break-inside:avoid}@media print{.paper .print-section h3,.meta-table th{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+
+/* Formato de sesión basado en el Word entregado: tablas escolares */
+.paper .document-heading{font-size:18px;letter-spacing:0;border:0;padding:0 0 8px;color:#222}
+.paper h2{color:#222;font-size:17px}
+.paper h3{color:#222;font-size:14px;border:0;background:none}
+.paper .curricular,.paper .moments{width:100%;font-size:11px;table-layout:fixed;margin:14px 0 22px}
+.paper .curricular th,.paper .moments th{background:#eceff1;color:#111;font-size:11px}
+.paper .curricular td,.paper .moments td{vertical-align:top;word-break:break-word;white-space:pre-wrap}
+.paper .moments th:first-child{width:23%;text-align:left}.paper .moments th:last-child{width:12%}
+.paper .meta-table td,.paper .meta-table th{padding:4px 7px}
+.paper .signatures{display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:18px;margin:68px 0 20px;font-size:11px;font-weight:700}
+@media print{.paper{font-family:Arial,sans-serif;font-size:11px}.paper .document-heading{font-size:15px}.paper .curricular,.paper .moments{font-size:10px}.paper .moments tr{break-inside:avoid}.paper .signatures{margin-top:50px}}
