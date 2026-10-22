@@ -27,6 +27,14 @@ jobs:
           GITHUB_PAGES: 'true'
           VITE_SUPABASE_URL: https://intsmwiivbdaversvlky.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_rAR4xuqnyM8w3zXy3Z1qdQ_-SBglNl-
+      - name: Verificar compilación antes de publicar
+        run: |
+          test -f dist/index.html
+          test -d dist/assets
+          grep -q '/sesiones-pabalo/assets/' dist/index.html
+          if grep -q 'src="/src/main.js"' dist/index.html; then
+            echo "ERROR: HTML original sin compilar"; exit 1
+          fi
       - uses: actions/configure-pages@v5
         with:
           enablement: true
