@@ -43,3 +43,17 @@
 .pdf-paper .image-slot .image-search,.pdf-paper .image-slot label,.pdf-paper .image-slot .image-message,.pdf-paper .image-panel>p{display:none}
 .pdf-paper .image-panel:not(:has(img)){display:none}
 @media print{.image-slot:not(:has(img)),.image-search,.image-slot label,.image-message,.image-panel>p{display:none!important}.image-panel:not(:has(img)){display:none!important}.image-slot:has(img){border:1px solid #2d78bc;background:#fff;padding:8px}.image-panel{break-before:page}.image-slot img{max-height:160mm}}
+
+/* Herramienta opcional de fichas ilustradas con Gemini */
+.gemini-image-panel{margin:22px 0;border:2px solid #3074b5;border-radius:12px;padding:18px;background:#f0f7ff;break-inside:avoid}
+.gemini-image-panel h3{color:#164f84!important;font-weight:800!important}
+.gemini-image-panel textarea{display:block;box-sizing:border-box;width:100%;padding:10px;font:12px Arial,sans-serif;line-height:1.5;border:1px solid #8cadcd;border-radius:8px;background:#fff;resize:vertical}
+.gemini-image-buttons{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.gemini-image-buttons button{font-size:12px}
+.gemini-image-panel input[type=file]{font-size:12px}
+.gemini-image-info{font-size:12px;color:#155a42;margin:7px 0}
+.gemini-image-holder img{display:block;width:auto;max-width:100%;max-height:900px;object-fit:contain;margin:10px auto;border:1px solid #3074b5}
+.pdf-paper .gemini-image-panel:has(img){background:#fff;border:0;padding:0;break-before:page;page-break-before:always}
+.pdf-paper .gemini-image-panel:not(:has(img)){display:none}
+.pdf-paper .gemini-image-panel p,.pdf-paper .gemini-image-panel label,.pdf-paper .gemini-image-panel textarea,.pdf-paper .gemini-image-panel .gemini-image-buttons,.pdf-paper .gemini-image-panel .gemini-image-info{display:none}
+@media print{.gemini-image-panel:not(:has(img)){display:none!important}.gemini-image-panel:has(img){break-before:page;background:#fff;border:0;padding:0}.gemini-image-panel p,.gemini-image-panel label,.gemini-image-panel textarea,.gemini-image-panel .gemini-image-buttons,.gemini-image-info{display:none!important}.gemini-image-holder img{max-height:245mm}}
