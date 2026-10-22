@@ -1,4 +1,4 @@
-# AulaFácil IA — sesiones docentes
+# Sesiones Grafiplot — sesiones docentes
 
 Aplicación web Vite conectable al proyecto **Grafiplot** de Supabase. Los docentes inician sesión, rellenan el formulario y solicitan una sesión a la función segura `aula-generar-sesion`. La biblioteca de miles de JSON se administra por separado: **no se piden archivos al docente**.
 
