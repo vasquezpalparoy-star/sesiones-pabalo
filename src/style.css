@@ -17,3 +17,14 @@
 .paper .meta-table td,.paper .meta-table th{padding:4px 7px}
 .paper .signatures{display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:18px;margin:68px 0 20px;font-size:11px;font-weight:700}
 @media print{.paper{font-family:Arial,sans-serif;font-size:11px}.paper .document-heading{font-size:15px}.paper .curricular,.paper .moments{font-size:10px}.paper .moments tr{break-inside:avoid}.paper .signatures{margin-top:50px}}
+
+/* Exportación PDF A4 fija: copia aislada del documento, sin botones del editor */
+.pdf-staging{position:fixed;left:-20000px;top:0;width:190mm;background:#fff;z-index:-1}
+.pdf-staging .pdf-paper{width:190mm!important;max-width:190mm!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;font-family:Arial,sans-serif;font-size:11px;color:#151515;line-height:1.35}
+.pdf-paper table{width:100%;border-collapse:collapse;table-layout:fixed}
+.pdf-paper th,.pdf-paper td{border:1px solid #333;padding:5px;overflow-wrap:anywhere;vertical-align:top}
+.pdf-paper .document-heading{text-align:center}
+.pdf-paper tr,.pdf-paper .question,.pdf-paper .signatures{break-inside:avoid;page-break-inside:avoid}
+.pdf-paper .page-break{height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;break-before:page;page-break-before:always}
+.pdf-paper h2,.pdf-paper h3{break-after:avoid;page-break-after:avoid}
+.pdf-paper .lines{color:#666}
