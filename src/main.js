@@ -252,3 +252,6 @@ async function exportWord(){
  const blob=await Packer.toBlob(doc),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sesion-grafiplot-en-cuadros.docx';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
 }
 if(db){db.auth.getSession().then(({data,error})=>{if(error)console.warn('Supabase Auth:',error.message);session=data?.session||null;if(session)editor();else login()}).catch(err=>{console.error(err);login()})}else login();
+
+// Instalación Android: aplicación web progresiva con acceso directo.
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js',{scope:import.meta.env.BASE_URL}).catch(err=>console.warn('Servicio Android no disponible:',err)))}
