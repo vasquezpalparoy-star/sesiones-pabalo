@@ -57,3 +57,53 @@
 .pdf-paper .gemini-image-panel:not(:has(img)){display:none}
 .pdf-paper .gemini-image-panel p,.pdf-paper .gemini-image-panel label,.pdf-paper .gemini-image-panel textarea,.pdf-paper .gemini-image-panel .gemini-image-buttons,.pdf-paper .gemini-image-panel .gemini-image-info{display:none}
 @media print{.gemini-image-panel:not(:has(img)){display:none!important}.gemini-image-panel:has(img){break-before:page;background:#fff;border:0;padding:0}.gemini-image-panel p,.gemini-image-panel label,.gemini-image-panel textarea,.gemini-image-panel .gemini-image-buttons,.gemini-image-info{display:none!important}.gemini-image-holder img{max-height:245mm}}
+
+/* Diseño móvil Android, sin modificar la maquetación A4 de descarga */
+@media screen and (max-width: 760px){
+ html,body,#app{width:100%;max-width:100%;overflow-x:hidden}
+ body{font-size:16px;background:#f1f6f9}
+ header{padding:13px 15px!important;position:relative;gap:10px;align-items:center;box-shadow:0 2px 10px #15384f12}
+ header .brand{min-width:0;gap:10px}
+ header .brand strong{font-size:18px;line-height:1.18}
+ header .brand small{font-size:11px;line-height:1.3}
+ header .brand-logo{width:40px;height:40px;flex-shrink:0}
+ main{width:100%;margin:16px auto 0!important;padding:0 12px 20px!important}
+ h1{font-size:25px;line-height:1.22;margin:0 0 8px}
+ h2{font-size:19px}
+ .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 16px}
+ .top>div{min-width:0;flex:1 1 200px}
+ .top .secondary{flex:0 0 auto}
+ .workspace{display:flex!important;flex-direction:column;gap:16px}
+ .workspace>.panel{width:100%;min-width:0}
+ .panel{padding:18px 15px;border-radius:16px;box-shadow:0 5px 20px #0b37490c}
+ .narrow{margin:30px auto;max-width:460px}
+ .two{grid-template-columns:1fr;gap:0}
+ label{font-size:14px;margin-bottom:13px}
+ input,select,textarea{max-width:100%;font-size:16px!important;padding:12px!important;min-height:46px}
+ input[type=file]{font-size:13px!important;min-height:0}
+ button{min-height:46px;padding:12px 14px;border-radius:11px;font-size:14px}
+ #generar>button,#login button{display:block;width:100%;min-height:52px;font-size:15px}
+ .preview-head{display:flex;flex-direction:column;align-items:stretch;gap:12px;margin-bottom:12px}
+ .preview-head>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .preview-head button{margin:0!important;min-width:0;white-space:normal}
+ .paper{width:100%;max-width:100%;min-height:320px;padding:18px 11px!important;box-shadow:none;border-radius:10px;overflow-wrap:anywhere;font-size:12px;line-height:1.45}
+ .paper .document-heading{font-size:15px}
+ .paper h2{font-size:15px}
+ .paper h3{font-size:13px}
+ .paper .curricular,.paper .moments,.paper .meta-table{font-size:10px;table-layout:auto}
+ .paper th,.paper td{padding:4px 3px;font-size:10px;word-break:break-word;overflow-wrap:anywhere}
+ .paper .curricular th{font-size:9px}
+ .paper .signatures{gap:12px;margin:36px 0 16px;font-size:9px}
+ .image-slot,.gemini-image-panel{padding:13px;margin:12px 0}
+ .gemini-image-buttons{display:grid;grid-template-columns:1fr}
+ .gemini-image-buttons button{width:100%}
+ .image-search{display:inline-block;padding:10px 0}
+ footer{padding:18px 14px;font-size:11px}
+}
+@media screen and (max-width: 360px){
+ main{padding:0 8px 16px!important}
+ .panel{padding:14px 10px}
+ .preview-head>div{grid-template-columns:1fr}
+ .paper{padding:12px 7px!important}
+ .paper .curricular th,.paper th,.paper td{font-size:9px}
+}
