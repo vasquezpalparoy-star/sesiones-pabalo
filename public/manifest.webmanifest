@@ -1,0 +1,19 @@
+{
+  "name": "Sesiones Grafiplot",
+  "short_name": "Grafiplot",
+  "description": "Crea sesiones de aprendizaje y fichas educativas",
+  "lang": "es",
+  "start_url": "/sesiones-pabalo/",
+  "scope": "/sesiones-pabalo/",
+  "display": "standalone",
+  "background_color": "#f1f7f9",
+  "theme_color": "#087f75",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
